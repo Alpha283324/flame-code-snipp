@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="google-site-verification" content="DN_HA0m3mss3QG1AWNQnorJadeWK8q1wClUEGyX_UwM" />
+  <title>Code Snippet Hub</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #1e1e2f;
+      color: #fff;
+    }
+    h1, h2 { text-align: center; }
+    input, select, textarea, button {
+      display: block;
+      margin: 10px 0;
+      width: 100%;
+      padding: 8px;
+      border: none;
+      border-radius: 5px;
+    }
+    button { background: #0078ff; color: white; cursor: pointer; }
+    button:hover { background: #005bcc; }
+    .snippet {
+      background: #2a2a40;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+    }
+    code {
+      display: block;
+      background: #000;
+      padding: 10px;
+      border-radius: 5px;
+      white-space: pre-wrap;
+      overflow-x: auto;
+      color: #0f0;
+    }
+    .actions button {
+      display: inline-block;
+      width: auto;
+      margin-right: 5px;
+      font-size: 12px;
+    }
+    .comment { background: #333; margin: 5px 0; padding: 5px; border-radius: 3px; }
+    .comment small { opacity: 0.8; }
+  </style>
+</head>
+<body>
+  <h1>🔥 Code Snippet Hub</h1>
+
+  <!-- Auth Section -->
+  <div id="auth-section">
+    <button id="googleLogin">Sign in with Google</button>
+    <button id="emailLogin">Sign in with Email</button>
+    <button id="logout" style="display:none;">Logout</button>
+  </div>
+
+  <!-- Add Snippet -->
+  <div id="addSnippetSection" style="display:none;">
+    <h2>Add Snippet</h2>
+    <input type="text" id="title" placeholder="Snippet Title" />
+    <select id="language">
+      <option value="Python">Python</option>
+      <option value="JavaScript">JavaScript</option>
+      <option value="C++">C++</option>
+      <option value="HTML/CSS">HTML/CSS</option>
+    </select>
+    <textarea id="code" placeholder="Your code here..." rows="6"></textarea>
+    <button onclick="addSnippet()">Add Snippet</button>
+  </div>
+
+  <hr />
+
+  <!-- Sorting -->
+  <h2>Browse Snippets</h2>
+  <select id="sortOption" onchange="displaySnippets()">
+    <option value="newest">Newest</option>
+    <option value="mostLiked">Most Liked</option>
+    <option value="favorites">My Favorites</option>
+    <option value="liked">My Liked</option>
+  </select>
+  <input type="text" id="search" placeholder="Search..." oninput="displaySnippets()" />
+  <div id="snippets"></div>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBccuRYZGgvaG5T2LSmnOrbsvGY_T79tsc",
+      authDomain: "fz0-api.firebaseapp.com",
+      databaseURL: "https://fz0-api-default-rtdb.firebaseio.com",
+      projectId: "fz0-api",
+      storageBucket: "fz0-api.firebasestorage.app",
+      messagingSenderId: "787239976897",
+      appId: "1:787239976897:web:0ec2db2a6227081f627940",
+      measurementId: "G-XQDKW1QSMV"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+
+    let currentUser = null;
+
+    // Auth UI
+    document.getElementById("googleLogin").onclick = () => {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider);
+    };
+    document.getElementById("emailLogin").onclick = () => {
+      const email = prompt("Email:");
+      const pass = prompt("Password:");
+      auth.signInWithEmailAndPassword(email, pass).catch(() => {
+        auth.createUserWithEmailAndPassword(email, pass);
+      });
+    };
+    document.getElementById("logout").onclick = () => auth.signOut();
+
+    auth.onAuthStateChanged(user => {
+      currentUser = user;
+      document.getElementById("logout").style.display = user ? "block" : "none";
+      document.getElementById("addSnippetSection").style.display = user ? "block" : "none";
+      displaySnippets();
+    });
+
+    // Add Snippet
+    async function addSnippet() {
+      const title = document.getElementById("title").value.trim();
+      const language = document.getElementById("language").value;
+      const code = document.getElementById("code").value.trim();
+      if (!currentUser) return alert("Login first.");
+      if (!title || !code) return;
+
+      await db.collection("snippets").add({
+        title,
+        language,
+        code,
+        user: currentUser.displayName || currentUser.email,
+        userId: currentUser.uid,
+        likes: [],
+        dislikes: [],
+        favorites: [],
+        comments: [],
+        createdAt: Date.now()
+      });
+      document.getElementById("title").value = "";
+      document.getElementById("code").value = "";
+    }
+
+    // Display Snippets (Realtime)
+    function displaySnippets() {
+      const search = document.getElementById("search").value.toLowerCase();
+      const sort = document.getElementById("sortOption").value;
+      const snippetsContainer = document.getElementById("snippets");
+      snippetsContainer.innerHTML = "";
+
+      db.collection("snippets").onSnapshot(snapshot => {
+        snippetsContainer.innerHTML = "";
+        let snippets = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+        if (sort === "mostLiked")
+          snippets.sort((a, b) => b.likes.length - a.likes.length);
+        else if (sort === "favorites" && currentUser)
+          snippets = snippets.filter(s => s.favorites.includes(currentUser.uid));
+        else if (sort === "liked" && currentUser)
+          snippets = snippets.filter(s => s.likes.includes(currentUser.uid));
+        else
+          snippets.sort((a, b) => b.createdAt - a.createdAt);
+
+        snippets = snippets.filter(s =>
+          (s.title + s.language + s.code).toLowerCase().includes(search)
+        );
+
+        snippets.forEach(s => {
+          const div = document.createElement("div");
+          div.className = "snippet";
+          div.innerHTML = `
+            <strong>${s.title}</strong> [${s.language}]<br>
+            <small>by ${s.user || "Anonymous"}</small>
+            <code>${s.code}</code>
+            <div class="actions">
+              <button onclick="toggleLike('${s.id}')">👍 ${s.likes.length}</button>
+              <button onclick="toggleDislike('${s.id}')">👎 ${s.dislikes.length}</button>
+              <button onclick="toggleFavorite('${s.id}')">⭐ ${s.favorites.length}</button>
+            </div>
+            <h4>Comments</h4>
+            <div id="comments-${s.id}"></div>
+            <input type="text" id="commentInput-${s.id}" placeholder="Write a comment..." />
+            <button onclick="addComment('${s.id}')">Post</button>
+          `;
+          snippetsContainer.appendChild(div);
+          renderComments(s.id, s.comments);
+        });
+      });
+    }
+
+    function renderComments(snippetId, comments) {
+      const container = document.getElementById(`comments-${snippetId}`);
+      container.innerHTML = "";
+      comments.forEach(c => {
+        const div = document.createElement("div");
+        div.className = "comment";
+        div.innerHTML = `<small>${c.user}</small>: ${c.text}`;
+        container.appendChild(div);
+      });
+    }
+
+    async function toggleLike(id) {
+      if (!currentUser) return alert("Login required.");
+      const ref = db.collection("snippets").doc(id);
+      const doc = await ref.get();
+      const data = doc.data();
+      const uid = currentUser.uid;
+      let likes = data.likes || [];
+      let dislikes = data.dislikes || [];
+
+      if (likes.includes(uid)) likes = likes.filter(u => u !== uid);
+      else likes.push(uid);
+
+      dislikes = dislikes.filter(u => u !== uid);
+      await ref.update({ likes, dislikes });
+    }
+
+    async function toggleDislike(id) {
+      if (!currentUser) return alert("Login required.");
+      const ref = db.collection("snippets").doc(id);
+      const doc = await ref.get();
+      const data = doc.data();
+      const uid = currentUser.uid;
+      let likes = data.likes || [];
+      let dislikes = data.dislikes || [];
+
+      if (dislikes.includes(uid)) dislikes = dislikes.filter(u => u !== uid);
+      else dislikes.push(uid);
+
+      likes = likes.filter(u => u !== uid);
+      await ref.update({ likes, dislikes });
+    }
+
+    async function toggleFavorite(id) {
+      if (!currentUser) return alert("Login required.");
+      const ref = db.collection("snippets").doc(id);
+      const doc = await ref.get();
+      const data = doc.data();
+      const uid = currentUser.uid;
+      let favorites = data.favorites || [];
+
+      if (favorites.includes(uid))
+        favorites = favorites.filter(u => u !== uid);
+      else favorites.push(uid);
+
+      await ref.update({ favorites });
+    }
+
+    async function addComment(id) {
+      if (!currentUser) return alert("Login required.");
+      const input = document.getElementById(`commentInput-${id}`);
+      const text = input.value.trim();
+      if (!text) return;
+
+      const ref = db.collection("snippets").doc(id);
+      const doc = await ref.get();
+      const data = doc.data();
+      const comments = data.comments || [];
+      comments.push({
+        user: currentUser.displayName || currentUser.email,
+        text,
+        time: Date.now()
+      });
+      await ref.update({ comments });
+      input.value = "";
+    }
+  </script>
+</body>
+</html>
