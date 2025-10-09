@@ -1,99 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta name="google-site-verification" content="11hKy6jPcSNpN2uGKkODkPFzCWgvKBn1coeklM3cd8k" />
-  <meta name="description" content="Find and share coding snippets instantly — search, upload, and explore code in real time.">
-  <meta name="keywords" content="code snippets, javascript, html, python, share code, flamezi0, coding tools">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Code Snippet Hub</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0 20px;
-      background: #1e1e2f;
-      color: #fff;
-    }
-    h1, h2 { text-align: center; }
-    input, select, textarea, button {
-      display: block;
-      margin: 10px 0;
-      width: 100%;
-      padding: 8px;
-      border: none;
-      border-radius: 5px;
-    }
-    button { background: #0078ff; color: white; cursor: pointer; }
-    button:hover { background: #005bcc; }
-    .snippet {
-      background: #2a2a40;
-      padding: 10px;
-      margin: 10px 0;
-      border-radius: 5px;
-    }
-    code {
-      display: block;
-      background: #000;
-      padding: 10px;
-      border-radius: 5px;
-      white-space: pre-wrap;
-      overflow-x: auto;
-      color: #0f0;
-    }
-    .actions button {
-      display: inline-block;
-      width: auto;
-      margin-right: 5px;
-      font-size: 12px;
-    }
-    .comment { background: #333; margin: 5px 0; padding: 5px; border-radius: 3px; }
-    .comment small { opacity: 0.8; }
-    /* Top Bar */
-    #topBar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      background: #111;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 20px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.5);
-      z-index: 1000;
-    }
-    #topBar a { color: #0ff; margin-right: 15px; text-decoration: none; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Code Snippet Hub</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background: #1e1e2f;
+    color: #fff;
+  }
+
+  /* Top Bar */
+  #topBar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: #111;
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    z-index: 1000;
+  }
+
+  #topBar button, #topBar a {
+    color: #0ff;
+    text-decoration: none;
+    background: none;
+    border: 1px solid #0ff;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+
+  #topBar button:hover, #topBar a:hover {
+    background: #0ff;
+    color: #111;
+  }
+
+  #spacer { height: 60px; }
+
+  h1, h2 { text-align: center; margin-top: 20px; }
+
+  input, select, textarea, button {
+    display: block;
+    margin: 10px 0;
+    width: 100%;
+    padding: 8px;
+    border: none;
+    border-radius: 5px;
+  }
+
+  button { background: #0078ff; color: white; cursor: pointer; }
+  button:hover { background: #005bcc; }
+
+  .snippet {
+    background: #2a2a40;
+    padding: 10px;
+    margin: 10px 20px;
+    border-radius: 5px;
+  }
+
+  code {
+    display: block;
+    background: #000;
+    padding: 10px;
+    border-radius: 5px;
+    color: #0f0;
+    white-space: pre-wrap;
+    overflow-x: auto;
+  }
+
+  .actions button { display: inline-block; width: auto; margin-right: 5px; font-size: 12px; }
+  .comment { background: #333; margin: 5px 0; padding: 5px; border-radius: 3px; }
+  .comment small { opacity: 0.8; }
+</style>
 </head>
 <body>
 
 <!-- Top Bar -->
 <div id="topBar">
-  <div>
-    <strong>🔥 Code Snippet Hub</strong>
-  </div>
-  <div>
-    <a href="tutorial.html">Tutorial</a>
-    <span id="topAuth">
-      <button id="googleLoginTop">Sign in</button>
-      <button id="logoutTop" style="display:none;">Logout</button>
-    </span>
-  </div>
+  <strong>🔥 Code Snippet Hub</strong>
+  <button id="topLoginButton">Login</button>
 </div>
 
-<!-- Spacer for fixed top bar -->
-<div style="height:60px;"></div>
+<div id="spacer"></div>
 
 <h1>🔥 Code Snippet Hub</h1>
 
-<!-- Auth Section -->
-<div id="auth-section">
-  <button id="googleLogin">Sign in with Google</button>
-  <button id="emailLogin">Sign in with Email</button>
-  <button id="logout" style="display:none;">Logout</button>
-</div>
-
-<!-- Add Snippet -->
+<!-- Add Snippet Section (visible after login) -->
 <div id="addSnippetSection" style="display:none;">
   <h2>Add Snippet</h2>
   <input type="text" id="title" placeholder="Snippet Title" />
@@ -109,7 +110,6 @@
 
 <hr />
 
-<!-- Sorting -->
 <h2>Browse Snippets</h2>
 <select id="sortOption" onchange="displaySnippets()">
   <option value="newest">Newest</option>
@@ -143,44 +143,27 @@
 
   let currentUser = null;
 
-  // Auth Buttons
-  function signInGoogle() {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithPopup(provider);
-  }
-  document.getElementById("googleLogin").onclick = signInGoogle;
-  document.getElementById("googleLoginTop").onclick = signInGoogle;
+  const topLoginButton = document.getElementById("topLoginButton");
 
-  document.getElementById("emailLogin").onclick = () => {
-    const email = prompt("Email:");
-    const pass = prompt("Password:");
-    auth.signInWithEmailAndPassword(email, pass).catch(() => {
-      auth.createUserWithEmailAndPassword(email, pass);
-    });
+  topLoginButton.onclick = () => {
+    window.location.href = "portal.html"; // go to portal page for login
   };
-
-  function signOut() { auth.signOut(); }
-  document.getElementById("logout").onclick = signOut;
-  document.getElementById("logoutTop").onclick = signOut;
 
   auth.onAuthStateChanged(user => {
     currentUser = user;
-    document.getElementById("logout").style.display = user ? "block" : "none";
-    document.getElementById("addSnippetSection").style.display = user ? "block" : "none";
-
-    // Top bar buttons
-    document.getElementById("googleLoginTop").style.display = user ? "none" : "inline-block";
-    document.getElementById("logoutTop").style.display = user ? "inline-block" : "none";
-
+    if (user) {
+      topLoginButton.style.display = "none"; // hide login button after login
+      document.getElementById("addSnippetSection").style.display = "block";
+    }
     displaySnippets();
   });
 
-  // Add Snippet
+  // Add snippet
   async function addSnippet() {
+    if (!currentUser) return alert("Login first.");
     const title = document.getElementById("title").value.trim();
     const language = document.getElementById("language").value;
     const code = document.getElementById("code").value.trim();
-    if (!currentUser) return alert("Login first.");
     if (!title || !code) return;
 
     await db.collection("snippets").add({
@@ -195,19 +178,20 @@
       comments: [],
       createdAt: Date.now()
     });
+
     document.getElementById("title").value = "";
     document.getElementById("code").value = "";
   }
 
-  // Display Snippets
+  // Display snippets
   function displaySnippets() {
     const search = document.getElementById("search").value.toLowerCase();
     const sort = document.getElementById("sortOption").value;
-    const snippetsContainer = document.getElementById("snippets");
-    snippetsContainer.innerHTML = "";
+    const container = document.getElementById("snippets");
+    container.innerHTML = "";
 
     db.collection("snippets").onSnapshot(snapshot => {
-      snippetsContainer.innerHTML = "";
+      container.innerHTML = "";
       let snippets = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
       if (sort === "mostLiked")
@@ -240,7 +224,7 @@
           <input type="text" id="commentInput-${s.id}" placeholder="Write a comment..." />
           <button onclick="addComment('${s.id}')">Post</button>
         `;
-        snippetsContainer.appendChild(div);
+        container.appendChild(div);
         renderComments(s.id, s.comments);
       });
     });
@@ -323,5 +307,6 @@
     input.value = "";
   }
 </script>
+
 </body>
 </html>
