@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login Portal</title>
+<style>
+  body { font-family: Arial; background: #1e1e2f; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; }
+  .portal { background: #222; padding: 20px; border-radius: 10px; width: 300px; text-align: center; }
+  button { background: #0ff; border: none; padding: 10px; border-radius: 5px; cursor: pointer; font-weight: bold; color: #111; width: 100%; margin-top: 10px; }
+  button:hover { background: #00c0c0; }
+</style>
+</head>
+<body>
+<div class="portal">
+  <h2>Login Portal</h2>
+  <button onclick="signInGoogle()">Sign in with Google</button>
+  <button onclick="signInEmail()">Sign in with Email</button>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyBccuRYZGgvaG5T2LSmnOrbsvGY_T79tsc",
+  authDomain: "fz0-api.firebaseapp.com",
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+
+function signInGoogle() {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  auth.signInWithPopup(provider).then(() => { window.location.href = "index.html"; });
+}
+
+function signInEmail() {
+  const email = prompt("Email:");
+  const pass = prompt("Password:");
+  auth.signInWithEmailAndPassword(email, pass)
+    .then(() => window.location.href = "index.html")
+    .catch(() => auth.createUserWithEmailAndPassword(email, pass)
+      .then(() => window.location.href = "index.html"));
+}
+</script>
+</body>
+</html>
