@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Code Snippet Hub - HTML Tutorials</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #1e1e2f;
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+    }
+    h1, h2 { text-align: center; }
+    a { color: #00ffff; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    section { margin-top: 40px; }
+    #tutorialContainer {
+      display: flex;
+      gap: 40px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    #tutorialList {
+      list-style: none;
+      padding: 0;
+      width: 200px;
+    }
+    #tutorialList li {
+      margin: 10px 0;
+    }
+    #tutorialInfo {
+      background: #2a2a40;
+      padding: 20px;
+      border-radius: 10px;
+      min-width: 300px;
+      max-width: 600px;
+    }
+    code {
+      display: block;
+      background: #000;
+      color: #0f0;
+      padding: 10px;
+      border-radius: 5px;
+      white-space: pre-wrap;
+      overflow-x: auto;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      background: #0078ff;
+      color: #fff;
+    }
+    button:hover { background: #005bcc; }
+  </style>
+</head>
+<body>
+
+<h1>📘 HTML Elements Tutorial</h1>
+
+<section id="tutorialPage">
+  <div id="tutorialContainer">
+    <!-- Element List -->
+    <ul id="tutorialList">
+      <!-- Elements added dynamically -->
+    </ul>
+
+    <!-- Info Panel -->
+    <div id="tutorialInfo">
+      <em>Select an element to see its attributes and example</em>
+    </div>
+  </div>
+</section>
+
+<script>
+// Elements data
+const tutorialElements = {
+  "a": {
+    description: "Defines a hyperlink.",
+    attributes: ["href", "target", "rel", "download"],
+    example: '<a href="https://example.com" target="_blank">Link</a>'
+  },
+  "img": {
+    description: "Embeds an image.",
+    attributes: ["src", "alt", "width", "height"],
+    example: '<img src="image.jpg" alt="Example Image">'
+  },
+  "button": {
+    description: "Creates a clickable button.",
+    attributes: ["type", "onclick", "disabled", "name", "value"],
+    example: '<button onclick="alert(\'Clicked!\')">Click Me</button>'
+  },
+  "input": {
+    description: "Used for user input.",
+    attributes: ["type", "placeholder", "value", "name", "required"],
+    example: '<input type="text" placeholder="Enter name">'
+  },
+  "textarea": {
+    description: "Defines a multi-line text input.",
+    attributes: ["rows", "cols", "placeholder", "name", "maxlength"],
+    example: '<textarea rows="4" cols="50" placeholder="Type here"></textarea>'
+  },
+  "select": {
+    description: "Creates a dropdown list.",
+    attributes: ["name", "multiple", "size"],
+    example: '<select><option>Option 1</option><option>Option 2</option></select>'
+  },
+  "div": {
+    description: "A generic container for content.",
+    attributes: ["id", "class", "style"],
+    example: '<div class="container">Content here</div>'
+  },
+  "span": {
+    description: "Inline container for text.",
+    attributes: ["id", "class", "style"],
+    example: '<span style="color:red">Red Text</span>'
+  }
+};
+
+// Populate the list dynamically
+const tutorialList = document.getElementById("tutorialList");
+for (const el in tutorialElements) {
+  const li = document.createElement("li");
+  li.innerHTML = `<a href="#" onclick="showElementInfo('${el}')">&lt;${el}&gt;</a>`;
+  tutorialList.appendChild(li);
+}
+
+// Show element info
+function showElementInfo(tag) {
+  const info = tutorialElements[tag];
+  const container = document.getElementById("tutorialInfo");
+  container.innerHTML = `
+    <h2>&lt;${tag}&gt;</h2>
+    <p><strong>Description:</strong> ${info.description}</p>
+    <p><strong>Attributes:</strong> ${info.attributes.join(", ")}</p>
+    <p><strong>Example:</strong><br><code>${info.example}</code></p>
+    <button onclick="copyExample('${tag}')">Copy Example</button>
+  `;
+}
+
+// Copy example to clipboard
+function copyExample(tag) {
+  const example = tutorialElements[tag].example;
+  navigator.clipboard.writeText(example).then(() => {
+    alert("Example copied to clipboard!");
+  });
+}
+</script>
+
+</body>
+</html>
