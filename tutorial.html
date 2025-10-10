@@ -118,8 +118,104 @@ const tutorialElements = {
     description: "Inline container for text.",
     attributes: ["id", "class", "style"],
     example: '<span style="color:red">Red Text</span>'
+  },
+  "h1": {
+    description: "Top-level heading.",
+    attributes: ["id", "class", "style"],
+    example: '<h1>Main Title</h1>'
+  },
+  "h2": {
+    description: "Second-level heading.",
+    attributes: ["id", "class", "style"],
+    example: '<h2>Section Title</h2>'
+  },
+  "p": {
+    description: "Paragraph of text.",
+    attributes: ["id", "class", "style"],
+    example: '<p>This is a paragraph.</p>'
+  },
+  "ul": {
+    description: "Unordered (bulleted) list.",
+    attributes: ["id", "class", "style"],
+    example: '<ul><li>Item 1</li><li>Item 2</li></ul>'
+  },
+  "ol": {
+    description: "Ordered (numbered) list.",
+    attributes: ["id", "class", "style", "start", "type"],
+    example: '<ol><li>First</li><li>Second</li></ol>'
+  },
+  "li": {
+    description: "List item inside <ul> or <ol>.",
+    attributes: ["id", "class", "style", "value"],
+    example: '<li>Item</li>'
+  },
+  "form": {
+    description: "HTML form for user input submission.",
+    attributes: ["action", "method", "enctype", "id", "class"],
+    example: '<form action="/submit" method="post"></form>'
+  },
+  "label": {
+    description: "Label for an input element.",
+    attributes: ["for", "id", "class", "style"],
+    example: '<label for="name">Name:</label>'
+  },
+  "table": {
+    description: "Table structure to display data in rows and columns.",
+    attributes: ["id", "class", "border", "cellspacing", "cellpadding"],
+    example: '<table><tr><th>Header</th></tr><tr><td>Data</td></tr></table>'
+  },
+  "tr": {
+    description: "Table row inside a table.",
+    attributes: ["id", "class", "style"],
+    example: '<tr><td>Cell</td></tr>'
+  },
+  "td": {
+    description: "Table cell inside a row.",
+    attributes: ["colspan", "rowspan", "id", "class", "style"],
+    example: '<td>Cell Content</td>'
+  },
+  "th": {
+    description: "Table header cell.",
+    attributes: ["colspan", "rowspan", "id", "class", "style"],
+    example: '<th>Header</th>'
+  },
+  "iframe": {
+    description: "Embeds another HTML page inside the page.",
+    attributes: ["src", "width", "height", "title", "allow", "sandbox"],
+    example: '<iframe src="https://example.com" width="300" height="200"></iframe>'
+  },
+  "audio": {
+    description: "Embeds audio content.",
+    attributes: ["src", "controls", "autoplay", "loop", "muted"],
+    example: '<audio controls><source src="song.mp3" type="audio/mpeg"></audio>'
+  },
+  "video": {
+    description: "Embeds video content.",
+    attributes: ["src", "controls", "autoplay", "loop", "muted", "width", "height"],
+    example: '<video width="320" height="240" controls><source src="video.mp4" type="video/mp4"></video>'
+  },
+  "link": {
+    description: "Defines a relationship to an external resource, usually a stylesheet.",
+    attributes: ["href", "rel", "type", "media"],
+    example: '<link rel="stylesheet" href="style.css">'
+  },
+  "meta": {
+    description: "Provides metadata about the HTML document.",
+    attributes: ["charset", "name", "content", "http-equiv"],
+    example: '<meta charset="UTF-8">'
+  },
+  "script": {
+    description: "Embed or reference JavaScript code.",
+    attributes: ["src", "type", "async", "defer"],
+    example: '<script src="script.js"></script>'
+  },
+  "style": {
+    description: "Embed CSS styles in the document.",
+    attributes: ["type", "media"],
+    example: '<style>body { background: black; }</style>'
   }
 };
+
 
 // Populate the list dynamically
 const tutorialList = document.getElementById("tutorialList");
