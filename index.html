@@ -6,7 +6,7 @@
 <meta name="google-site-verification" content="11hKy6jPcSNpN2uGKkODkPFzCWgvKBn1coeklM3cd8k" />
 <title>Code Snippet Hub</title>
 
-<!-- Prism.js syntax highlighting -->
+<!-- Prism -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
@@ -15,34 +15,122 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
 
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Doto:wght@900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Doto:wght@700;900&display=swap');
 
-  body {
-      background-color: #000d21;
-      color: white;
-      font-family: "Doto", sans-serif;
-      font-optical-sizing: auto;
-      font-style: bold;
-      font-variation-settings:
-      "ROND" 0;
-  }
-  div#topBar {
-    display: flex;
-    gap: 10px;
-  }
+:root {
+  --bg: #000d21;
+  --panel: #020b1f;
+  --accent: #4da3ff;
+  --danger: #ff4d4d;
+  --border: rgba(255,255,255,0.08);
+}
 
-  div#topBar {
-    display: flex;
-    gap: 10px;
-    background: black;
-    padding: 10px;
-    border-radius: 10px;
-  }
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 20px;
+  background: radial-gradient(circle at top, #06173a, var(--bg));
+  color: white;
+  font-family: "Doto", sans-serif;
+}
+
+a { color: var(--accent); text-decoration: none; }
+
+h1, h2 { letter-spacing: 1px; }
+
+#topBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, #020b1f, #020f2a);
+  padding: 14px 18px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+}
+
+#topBar button {
+  background: var(--accent);
+  color: black;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+#addSnippetSection,
+.snippet {
+  background: var(--panel);
+  padding: 16px;
+  margin-top: 16px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+}
+
+input, textarea, select {
+  width: 100%;
+  background: #020814;
+  color: white;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px;
+  margin-top: 8px;
+  font-family: inherit;
+}
+
+button {
+  margin-top: 10px;
+  background: #1c2d5a;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+button:hover { background: #2a3e7a; }
+
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.deleteBtn {
+  background: var(--danger);
+}
+
+.deleteBtn:hover {
+  background: #ff1f1f;
+}
+
+pre {
+  margin-top: 10px;
+  border-radius: 12px;
+  overflow-x: auto;
+}
+
+.comment {
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.9rem;
+}
+
+hr {
+  border: none;
+  height: 1px;
+  background: var(--border);
+  margin: 30px 0;
+}
 </style>
 </head>
+
 <body>
 
-<!-- Top Bar -->
 <div id="topBar">
   <strong>🔥 Code Snippet Hub</strong>
   <div>
@@ -51,25 +139,22 @@
   </div>
 </div>
 
-<div id="spacer"></div>
-
 <h1>🔥 Code Snippet Hub</h1>
 
-<!-- Add Snippet Section -->
 <div id="addSnippetSection" style="display:none;">
   <h2>Add Snippet</h2>
-  <input type="text" id="title" placeholder="Snippet Title" />
+  <input id="title" placeholder="Snippet Title">
   <select id="language">
-    <option value="Python">Python</option>
-    <option value="JavaScript">JavaScript</option>
-    <option value="C++">C++</option>
-    <option value="HTML/CSS">HTML/CSS</option>
+    <option>Python</option>
+    <option>JavaScript</option>
+    <option>C++</option>
+    <option>HTML/CSS</option>
   </select>
-  <textarea id="code" placeholder="Your code here..." rows="6"></textarea>
+  <textarea id="code" rows="6" placeholder="Your code here..."></textarea>
   <button onclick="addSnippet()">Add Snippet</button>
 </div>
 
-<hr />
+<hr>
 
 <h2>Browse Snippets</h2>
 <select id="sortOption" onchange="displaySnippets()">
@@ -78,7 +163,8 @@
   <option value="favorites">My Favorites</option>
   <option value="liked">My Liked</option>
 </select>
-<input type="text" id="search" placeholder="Search..." oninput="displaySnippets()" />
+
+<input id="search" placeholder="Search..." oninput="displaySnippets()">
 <div id="snippets"></div>
 
 <!-- Firebase -->
@@ -87,175 +173,122 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
 <script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyBccuRYZGgvaG5T2LSmnOrbsvGY_T79tsc",
-    authDomain: "fz0-api.firebaseapp.com",
-    databaseURL: "https://fz0-api-default-rtdb.firebaseio.com",
-    projectId: "fz0-api",
-    storageBucket: "fz0-api.firebasestorage.app",
-    messagingSenderId: "787239976897",
-    appId: "1:787239976897:web:0ec2db2a6227081f627940",
-    measurementId: "G-XQDKW1QSMV"
-  };
+firebase.initializeApp({
+  apiKey: "AIzaSyBccuRYZGgvaG5T2LSmnOrbsvGY_T79tsc",
+  authDomain: "fz0-api.firebaseapp.com",
+  projectId: "fz0-api"
+});
 
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
-  const auth = firebase.auth();
+const db = firebase.firestore();
+const auth = firebase.auth();
+let currentUser = null;
 
-  let currentUser = null;
-  const topLoginButton = document.getElementById("topLoginButton");
-  topLoginButton.onclick = () => window.location.href = "portal.html";
+document.getElementById("topLoginButton").onclick =
+  () => location.href = "portal.html";
 
-  auth.onAuthStateChanged(user => {
-    currentUser = user;
-    if (user) {
-      topLoginButton.style.display = "none";
-      document.getElementById("addSnippetSection").style.display = "block";
-    }
-    displaySnippets();
+auth.onAuthStateChanged(user => {
+  currentUser = user;
+  if (user) {
+    document.getElementById("topLoginButton").style.display = "none";
+    document.getElementById("addSnippetSection").style.display = "block";
+  }
+  displaySnippets();
+});
+
+async function addSnippet() {
+  if (!currentUser) return;
+  await db.collection("snippets").add({
+    title: title.value.trim(),
+    language: language.value,
+    code: code.value.trim(),
+    user: currentUser.displayName || currentUser.email,
+    userId: currentUser.uid,
+    likes: [],
+    dislikes: [],
+    favorites: [],
+    comments: [],
+    createdAt: Date.now()
   });
+  title.value = code.value = "";
+}
 
-  async function addSnippet() {
-    if (!currentUser) return alert("Login first.");
-    const title = document.getElementById("title").value.trim();
-    const language = document.getElementById("language").value;
-    const code = document.getElementById("code").value.trim();
-    if (!title || !code) return;
-    await db.collection("snippets").add({
-      title,
-      language,
-      code,
-      user: currentUser.displayName || currentUser.email,
-      userId: currentUser.uid,
-      likes: [],
-      dislikes: [],
-      favorites: [],
-      comments: [],
-      createdAt: Date.now()
-    });
-    document.getElementById("title").value = "";
-    document.getElementById("code").value = "";
-  }
+function displaySnippets() {
+  db.collection("snippets").onSnapshot(snap => {
+    snippets.innerHTML = "";
+    let data = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const q = search.value.toLowerCase();
+    const sort = sortOption.value;
 
-  function displaySnippets() {
-    const search = document.getElementById("search").value.toLowerCase();
-    const sort = document.getElementById("sortOption").value;
-    const container = document.getElementById("snippets");
-    container.innerHTML = "";
+    if (sort === "mostLiked") data.sort((a,b)=>b.likes.length-a.likes.length);
+    else data.sort((a,b)=>b.createdAt-a.createdAt);
 
-    db.collection("snippets").onSnapshot(snapshot => {
-      container.innerHTML = "";
-      let snippets = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-      if (sort === "mostLiked")
-        snippets.sort((a, b) => b.likes.length - a.likes.length);
-      else if (sort === "favorites" && currentUser)
-        snippets = snippets.filter(s => s.favorites.includes(currentUser.uid));
-      else if (sort === "liked" && currentUser)
-        snippets = snippets.filter(s => s.likes.includes(currentUser.uid));
-      else
-        snippets.sort((a, b) => b.createdAt - a.createdAt);
-
-      snippets = snippets.filter(s =>
-        (s.title + s.language + s.code).toLowerCase().includes(search)
-      );
-
-      snippets.forEach(s => {
-        const div = document.createElement("div");
-        div.className = "snippet";
-
-        const escapedCode = s.code.replace(/&/g,"&amp;")
-                                  .replace(/</g,"&lt;")
-                                  .replace(/>/g,"&gt;");
-        const langClass = "language-" + s.language.toLowerCase().replace(/[^a-z]/g,'');
-
-        div.innerHTML = `
-          <strong>${s.title}</strong> [${s.language}]<br>
-          <small>by ${s.user || "Anonymous"}</small>
-          <pre><code class="${langClass}">${escapedCode}</code></pre>
-          <div class="actions">
-            <button onclick="toggleLike('${s.id}')">👍 ${s.likes.length}</button>
-            <button onclick="toggleDislike('${s.id}')">👎 ${s.dislikes.length}</button>
-            <button onclick="toggleFavorite('${s.id}')">⭐ ${s.favorites.length}</button>
-          </div>
-          <h4>Comments</h4>
-          <div id="comments-${s.id}"></div>
-          <input type="text" id="commentInput-${s.id}" placeholder="Write a comment..." />
-          <button onclick="addComment('${s.id}')">Post</button>
-        `;
-        container.appendChild(div);
-        renderComments(s.id, s.comments);
-      });
-
-      Prism.highlightAll(); // Re-run Prism after dynamic content
-    });
-  }
-
-  function renderComments(snippetId, comments) {
-    const container = document.getElementById(`comments-${snippetId}`);
-    container.innerHTML = "";
-    comments.forEach(c => {
+    data.filter(s => (s.title+s.code).toLowerCase().includes(q))
+    .forEach(s => {
+      const isOwner = currentUser && s.userId === currentUser.uid;
       const div = document.createElement("div");
-      div.className = "comment";
-      div.innerHTML = `<small>${c.user}</small>: ${c.text}`;
-      container.appendChild(div);
+      div.className = "snippet";
+
+      div.innerHTML = `
+        <strong>${s.title}</strong> [${s.language}]<br>
+        <small>by ${s.user}</small>
+        <pre><code class="language-${s.language.toLowerCase().replace(/[^a-z]/g,'')}">
+${s.code.replace(/</g,"&lt;")}
+        </code></pre>
+
+        <div class="actions">
+          <button onclick="toggleLike('${s.id}')">👍 ${s.likes.length}</button>
+          <button onclick="toggleDislike('${s.id}')">👎 ${s.dislikes.length}</button>
+          <button onclick="toggleFavorite('${s.id}')">⭐ ${s.favorites.length}</button>
+          ${isOwner ? `<button class="deleteBtn" onclick="deleteSnippet('${s.id}')">🗑 Delete</button>` : ""}
+        </div>
+      `;
+      snippets.appendChild(div);
     });
-  }
+    Prism.highlightAll();
+  });
+}
 
-  async function toggleLike(id) {
-    if (!currentUser) return alert("Login required.");
-    const ref = db.collection("snippets").doc(id);
-    const doc = await ref.get();
-    const data = doc.data();
-    const uid = currentUser.uid;
-    let likes = data.likes || [];
-    let dislikes = data.dislikes || [];
-    if (likes.includes(uid)) likes = likes.filter(u => u !== uid);
-    else likes.push(uid);
-    dislikes = dislikes.filter(u => u !== uid);
-    await ref.update({ likes, dislikes });
-  }
+async function deleteSnippet(id) {
+  if (!currentUser) return;
+  if (!confirm("Delete this snippet permanently?")) return;
+  const ref = db.collection("snippets").doc(id);
+  const doc = await ref.get();
+  if (doc.data().userId !== currentUser.uid) return;
+  await ref.delete();
+}
 
-  async function toggleDislike(id) {
-    if (!currentUser) return alert("Login required.");
-    const ref = db.collection("snippets").doc(id);
-    const doc = await ref.get();
-    const data = doc.data();
-    const uid = currentUser.uid;
-    let likes = data.likes || [];
-    let dislikes = data.dislikes || [];
-    if (dislikes.includes(uid)) dislikes = dislikes.filter(u => u !== uid);
-    else dislikes.push(uid);
-    likes = likes.filter(u => u !== uid);
-    await ref.update({ likes, dislikes });
-  }
+async function toggleLike(id) {
+  if (!currentUser) return;
+  const ref = db.collection("snippets").doc(id);
+  const d = (await ref.get()).data();
+  const uid = currentUser.uid;
+  let likes = d.likes.filter(u=>u!==uid);
+  let dislikes = d.dislikes.filter(u=>u!==uid);
+  if (!d.likes.includes(uid)) likes.push(uid);
+  await ref.update({ likes, dislikes });
+}
 
-  async function toggleFavorite(id) {
-    if (!currentUser) return alert("Login required.");
-    const ref = db.collection("snippets").doc(id);
-    const doc = await ref.get();
-    const data = doc.data();
-    const uid = currentUser.uid;
-    let favorites = data.favorites || [];
-    if (favorites.includes(uid))
-      favorites = favorites.filter(u => u !== uid);
-    else favorites.push(uid);
-    await ref.update({ favorites });
-  }
+async function toggleDislike(id) {
+  if (!currentUser) return;
+  const ref = db.collection("snippets").doc(id);
+  const d = (await ref.get()).data();
+  const uid = currentUser.uid;
+  let dislikes = d.dislikes.filter(u=>u!==uid);
+  let likes = d.likes.filter(u=>u!==uid);
+  if (!d.dislikes.includes(uid)) dislikes.push(uid);
+  await ref.update({ likes, dislikes });
+}
 
-  async function addComment(id) {
-    if (!currentUser) return alert("Login required.");
-    const input = document.getElementById(`commentInput-${id}`);
-    const text = input.value.trim();
-    if (!text) return;
-    const ref = db.collection("snippets").doc(id);
-    const doc = await ref.get();
-    const data = doc.data();
-    const comments = data.comments || [];
-    comments.push({ user: currentUser.displayName || currentUser.email, text, time: Date.now() });
-    await ref.update({ comments });
-    input.value = "";
-  }
+async function toggleFavorite(id) {
+  if (!currentUser) return;
+  const ref = db.collection("snippets").doc(id);
+  const d = (await ref.get()).data();
+  const uid = currentUser.uid;
+  let fav = d.favorites.includes(uid)
+    ? d.favorites.filter(u=>u!==uid)
+    : [...d.favorites, uid];
+  await ref.update({ favorites: fav });
+}
 </script>
 
 </body>
